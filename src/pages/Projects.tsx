@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import type { Variants } from "framer-motion";
+
 
 interface Repo {
   id: number;
@@ -22,13 +24,17 @@ const containerVariants = {
   },
 };
 
-const cardVariants = {
+const cardVariants: Variants = {
   hidden: { opacity: 0, y: 40, scale: 0.95 },
   visible: {
     opacity: 1,
     y: 0,
     scale: 1,
-    transition: { type: "spring", stiffness: 120, damping: 15 },
+    transition: {
+      type: "spring" as const, // ← type assertion fixes TS error
+      stiffness: 120,
+      damping: 15,
+    },
   },
   hover: {
     scale: 1.05,
@@ -39,10 +45,31 @@ const cardVariants = {
   },
 };
 
-const badgeVariants = {
+// const cardVariants = {
+//   hidden: { opacity: 0, y: 40, scale: 0.95 },
+//   visible: {
+//     opacity: 1,
+//     y: 0,
+//     scale: 1,
+//     transition: { type: "spring", stiffness: 120, damping: 15 },
+//   },
+//   hover: {
+//     scale: 1.05,
+//     rotateX: 2,
+//     rotateY: 2,
+//     boxShadow: "0 20px 40px rgba(99,102,241,0.3)",
+//     transition: { duration: 0.3 },
+//   },
+// };
+
+const badgeVariants: Variants = {
   hidden: { opacity: 0, y: 5 },
-  visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300 } },
-  hover: { scale: 1.1, y: -2, transition: { type: "spring", stiffness: 300 } },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { type: "spring" as const, stiffness: 300 }
+  },
+  hover: { scale: 1.1, y: -2, transition: { type: "spring" as const, stiffness: 300 } },
 };
 
 const Projects: React.FC = () => {
