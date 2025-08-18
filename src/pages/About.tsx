@@ -1,8 +1,9 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { useInView } from "react-intersection-observer";
 import ProfilePic1 from "../assets/ProfilePic1.png";
+import { useInView } from "react-intersection-observer";
 
+// Define the skills array
 const skills = [
   "React",
   "TypeScript",
