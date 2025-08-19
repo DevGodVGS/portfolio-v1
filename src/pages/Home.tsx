@@ -1,16 +1,26 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import type { Variants } from "framer-motion"; // type-only import
 import { FaLinkedin, FaGithub, FaFileDownload, FaEnvelope } from "react-icons/fa";
 
-const container = {
+
+// Properly typed Variants
+const container: Variants = {
     hidden: { opacity: 0 },
     show: { opacity: 1, transition: { staggerChildren: 0.2 } },
 };
 
-const fadeUp = {
+const fadeUp: Variants = {
     hidden: { opacity: 0, y: 30 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } },
+    show: {
+        opacity: 1,
+        y: 0,
+        transition: {
+            duration: 0.8,
+            ease: [0.42, 0, 0.58, 1], // cubic-bezier array for TS compatibility
+        },
+    },
 };
 
 const Home: React.FC = () => {
@@ -48,10 +58,7 @@ const Home: React.FC = () => {
                     <span className="text-indigo-400 font-medium">AI-powered integrations</span>.
                 </motion.p>
 
-                <motion.p
-                    variants={fadeUp}
-                    className="italic text-gray-500 mb-12"
-                >
+                <motion.p variants={fadeUp} className="italic text-gray-500 mb-12">
                     Turning ideas into interactive digital experiences
                 </motion.p>
 
@@ -143,9 +150,11 @@ const Home: React.FC = () => {
     );
 };
 
-// Reuse NeonTrails from Contact/Projects
+// Neon Trails Component
 const NeonTrails: React.FC<{ count: number }> = ({ count }) => {
-    const [particles, setParticles] = React.useState<{ x: number; y: number; dx: number; dy: number; hue: number; trail: { x: number; y: number }[] }[]>([]);
+    const [particles, setParticles] = React.useState<
+        { x: number; y: number; dx: number; dy: number; hue: number; trail: { x: number; y: number }[] }[]
+    >([]);
 
     React.useEffect(() => {
         const arr = Array.from({ length: count }).map(() => ({
