@@ -1,22 +1,8 @@
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import emailjs from "@emailjs/browser";
-import { motion } from "framer-motion";
 import { FaGithub, FaLinkedin, FaTwitter, FaEnvelope } from "react-icons/fa";
 
-type FormData = {
-  name: string;
-  email: string;
-  message: string;
-};
-
-type Particle = {
-  x: number;
-  y: number;
-  dx: number;
-  dy: number;
-  hue: number;
-  trail: { x: number; y: number }[];
-};
+type FormData = { name: string; email: string; message: string };
 
 const Contact: React.FC = () => {
   const [formData, setFormData] = useState<FormData>({ name: "", email: "", message: "" });
@@ -24,9 +10,8 @@ const Contact: React.FC = () => {
   const [status, setStatus] = useState<string | null>(null);
   const formRef = useRef<HTMLDivElement>(null);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,11 +21,7 @@ const Contact: React.FC = () => {
       await emailjs.send(
         "YOUR_SERVICE_ID",
         "YOUR_TEMPLATE_ID",
-        {
-          user_name: formData.name,
-          user_email: formData.email,
-          message: formData.message,
-        },
+        { user_name: formData.name, user_email: formData.email, message: formData.message },
         "YOUR_PUBLIC_KEY"
       );
       setStatus("✅ Message sent successfully!");
@@ -55,40 +36,29 @@ const Contact: React.FC = () => {
 
   const scrollToForm = () => formRef.current?.scrollIntoView({ behavior: "smooth" });
 
-  const socialLinks = useMemo(
-    () => [
-      { icon: <FaGithub />, link: "https://github.com/DevGodVGS" },
-      { icon: <FaLinkedin />, link: "https://linkedin.com/in/your-profile" },
-      { icon: <FaTwitter />, link: "https://twitter.com/your-profile" },
-      { icon: <FaEnvelope />, link: "mailto:you@example.com" },
-    ],
-    []
-  );
+  const socialLinks = [
+    { icon: <FaGithub />, link: "https://github.com/DevGodVGS" },
+    { icon: <FaLinkedin />, link: "https://linkedin.com/in/your-profile" },
+    { icon: <FaTwitter />, link: "https://twitter.com/your-profile" },
+    { icon: <FaEnvelope />, link: "mailto:you@example.com" },
+  ];
 
   return (
     <main className="relative p-6 flex flex-col items-center min-h-screen bg-gradient-to-br from-gray-900 via-indigo-900 to-black overflow-hidden">
       {/* Floating Neon Envelope */}
-      <motion.button
+      <button
         onClick={scrollToForm}
-        className="fixed bottom-8 right-8 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 text-white p-4 rounded-full shadow-2xl z-50"
-        whileHover={{ scale: 1.3, rotate: 20, boxShadow: "0 0 25px #8B5CF6, 0 0 50px #EC4899" }}
-        whileTap={{ scale: 0.9 }}
-        animate={{ y: [0, -10, 0] }}
-        transition={{ duration: 2, repeat: Infinity, repeatType: "loop" }}
+        className="fixed bottom-8 right-8 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 text-white p-4 rounded-full shadow-2xl z-50 animate-bounce hover:scale-125 transition-transform"
         aria-label="Scroll to contact form"
       >
-        <FaEnvelope size={26} className="drop-shadow-lg" />
-      </motion.button>
+        <FaEnvelope size={26} />
+      </button>
 
       {/* Contact Card */}
-      <motion.div
+      <div
         ref={formRef}
-        className="max-w-lg w-full bg-gray-900 rounded-3xl shadow-xl p-8 mt-12 relative z-10"
-        initial={{ opacity: 0, y: 40 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
+        className="max-w-lg w-full bg-gray-900 rounded-3xl shadow-xl p-8 mt-12 relative z-10 animate-fade-in"
       >
-        {/* Heading */}
         <h1 className="relative text-4xl font-extrabold mb-6 text-center bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-500 animate-gradient-x">
           Contact Me
           <span className="absolute inset-0 text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-500 blur-xl opacity-30 animate-gradient-x"></span>
@@ -108,7 +78,7 @@ const Contact: React.FC = () => {
                 onChange={handleChange}
                 required
                 placeholder={field === "email" ? "you@example.com" : "John Doe"}
-                className="w-full border border-indigo-600/40 rounded-xl p-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:shadow-[0_0_15px_rgba(99,102,241,0.7)] transition"
+                className="w-full border border-indigo-600/40 rounded-xl p-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
               />
             </div>
           ))}
@@ -122,159 +92,103 @@ const Contact: React.FC = () => {
               onChange={handleChange}
               required
               placeholder="Write your message..."
-              className="w-full border border-indigo-600/40 rounded-xl p-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:shadow-[0_0_15px_rgba(99,102,241,0.7)] transition resize-none"
+              className="w-full border border-indigo-600/40 rounded-xl p-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition resize-none"
             />
           </div>
 
-          {/* Submit Button */}
-          <motion.button
+          <button
             type="submit"
             disabled={loading}
-            className={`w-full py-3 rounded-xl font-semibold text-white transition relative overflow-hidden ${loading ? "bg-gray-600 cursor-not-allowed" : "bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 shadow-lg"
-              }`}
-            whileHover={
-              loading
-                ? {}
-                : { scale: 1.05, boxShadow: "0 0 20px #8B5CF6, 0 0 40px #EC4899, 0 0 60px #F472B6" }
-            }
+            className={`w-full py-3 rounded-xl font-semibold text-white transition ${loading ? "bg-gray-600 cursor-not-allowed" : "bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 shadow-lg hover:scale-105 transition-transform"}`}
           >
             {loading ? "Sending..." : "Send Message"}
-            {!loading && (
-              <span
-                className="absolute inset-0 rounded-xl bg-white opacity-10 animate-pulse pointer-events-none"
-                style={{ mixBlendMode: "screen" }}
-              />
-            )}
-          </motion.button>
+          </button>
         </form>
 
         {/* Status */}
         {status && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: [0, 1, 0.8, 1] }}
-            transition={{ duration: 1, repeat: 3 }}
-            className={`mt-4 text-center font-medium text-lg ${status.startsWith("✅") ? "text-green-400 drop-shadow-md" : "text-red-500 drop-shadow-md"
-              }`}
-          >
+          <div className={`mt-4 text-center font-medium text-lg ${status.startsWith("✅") ? "text-green-400" : "text-red-500"}`}>
             {status}
-          </motion.div>
+          </div>
         )}
 
         {/* Social Icons */}
         <div className="mt-8 flex justify-center gap-6 relative">
           {socialLinks.map((social, idx) => (
-            <motion.a
+            <a
               key={idx}
               href={social.link}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-white text-2xl drop-shadow-lg"
-              animate={{
-                scale: [1, 1.3, 1],
-                textShadow: [
-                  "0 0 0px #8B5CF6, 0 0 0px #EC4899",
-                  "0 0 15px #8B5CF6, 0 0 30px #EC4899",
-                  "0 0 0px #8B5CF6, 0 0 0px #EC4899",
-                ],
-              }}
-              transition={{ duration: 2, repeat: Infinity, repeatType: "loop" }}
-              whileHover={{ scale: 1.4, rotate: 360 }}
+              className="text-white text-2xl transition-transform hover:scale-125 hover:text-indigo-400"
             >
               {social.icon}
-            </motion.a>
+            </a>
           ))}
         </div>
-      </motion.div>
+      </div>
 
-      {/* Particle Trails */}
-      <NeonTrails count={25} />
+      {/* Canvas Neon Trails */}
+      <NeonTrailsCanvas count={25} />
 
-      <style>
-        {`
-        @keyframes gradientShift {
-          0% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
-        }
+      <style>{`
+        @keyframes gradientShift { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
         .animate-gradient-x { background-size: 200% 200%; animation: gradientShift 5s ease infinite; }
-        `}
-      </style>
+
+        @keyframes fadeIn { from{opacity:0;transform:translateY(20px);} to{opacity:1;transform:translateY(0);} }
+        .animate-fade-in { animation: fadeIn 0.8s ease forwards; }
+
+        @keyframes bounce { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-10px);} }
+        .animate-bounce { animation: bounce 2s infinite; }
+      `}</style>
     </main>
   );
 };
 
-// Neon Trailing Particles
-const NeonTrails: React.FC<{ count: number }> = ({ count }) => {
-  const [particles, setParticles] = useState<Particle[]>([]);
+// Canvas-based Neon Trails
+const NeonTrailsCanvas: React.FC<{ count: number }> = ({ count }) => {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const particlesRef = useRef<{ x: number; y: number; dx: number; dy: number; hue: number }[]>([]);
 
   useEffect(() => {
-    const arr = Array.from({ length: count }).map(() => ({
-      x: Math.random() * window.innerWidth,
-      y: Math.random() * window.innerHeight,
-      dx: (Math.random() - 0.5) * 2,
-      dy: (Math.random() - 0.5) * 2,
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
+    window.addEventListener("resize", resize);
+    resize();
+
+    particlesRef.current = Array.from({ length: count }).map(() => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      dx: (Math.random() - 0.5) * 1.5,
+      dy: (Math.random() - 0.5) * 1.5,
       hue: Math.random() * 360,
-      trail: [],
     }));
-    setParticles(arr);
+
+    const animate = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particlesRef.current.forEach(p => {
+        p.x += p.dx; p.y += p.dy;
+        if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
+        if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
+        ctx.fillStyle = `hsl(${p.hue},100%,70%)`;
+        ctx.shadowColor = `hsl(${p.hue},100%,70%)`;
+        ctx.shadowBlur = 8;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+        ctx.fill();
+      });
+      requestAnimationFrame(animate);
+    };
+    animate();
+
+    return () => window.removeEventListener("resize", resize);
   }, [count]);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setParticles((prev) =>
-        prev.map((p) => {
-          const newX = p.x + p.dx;
-          const newY = p.y + p.dy;
-          const newTrail = [...p.trail, { x: p.x, y: p.y }].slice(-5);
-          return {
-            ...p,
-            x: newX < 0 || newX > window.innerWidth ? p.x : newX,
-            y: newY < 0 || newY > window.innerHeight ? p.y : newY,
-            dx: newX < 0 || newX > window.innerWidth ? -p.dx : p.dx,
-            dy: newY < 0 || newY > window.innerHeight ? -p.dy : p.dy,
-            trail: newTrail,
-          };
-        })
-      );
-    }, 16);
-    return () => clearInterval(interval);
-  }, []);
-
-  return (
-    <>
-      {particles.map((p, idx) => (
-        <React.Fragment key={idx}>
-          {p.trail.map((t, tIdx) => (
-            <div
-              key={tIdx}
-              className="absolute rounded-full pointer-events-none"
-              style={{
-                left: t.x,
-                top: t.y,
-                width: 6 - tIdx,
-                height: 6 - tIdx,
-                background: `hsl(${p.hue}, 100%, ${70 - tIdx * 10}%)`,
-                opacity: 0.7 - tIdx * 0.1,
-                filter: "blur(4px)",
-              }}
-            />
-          ))}
-          <div
-            className="absolute rounded-full pointer-events-none"
-            style={{
-              left: p.x,
-              top: p.y,
-              width: 6,
-              height: 6,
-              background: `hsl(${p.hue}, 100%, 70%)`,
-              filter: "blur(4px)",
-            }}
-          />
-        </React.Fragment>
-      ))}
-    </>
-  );
+  return <canvas ref={canvasRef} className="absolute inset-0 -z-10" />;
 };
 
 export default Contact;

@@ -2,13 +2,14 @@
 import { Suspense } from "react";
 import { routes } from "./routes/Routes";
 import { useRoutes } from "react-router-dom";
+import ErrorBoundary from "./components/ErrorBoundary";
 
 function App() {
   const element = useRoutes(routes);
 
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      {element}
+      <ErrorBoundary>{element}</ErrorBoundary>
     </Suspense>
   );
 }

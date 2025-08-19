@@ -1,27 +1,23 @@
 import React, { useState } from "react";
 import { Outlet, Link, useLocation } from "react-router-dom";
 import { FaBars, FaTimes } from "react-icons/fa";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useMotionValue, useTransform } from "framer-motion";
 
 // Futuristic Background
-const FuturisticBackground: React.FC = () => {
-  return (
-    <div className="absolute inset-0 -z-10">
-      {/* Animated gradient beams */}
-      <div className="absolute inset-0">
-        <div className="absolute w-[200%] h-[200%] bg-gradient-to-r from-cyan-500/30 via-purple-500/20 to-pink-500/30 animate-spin-slow"></div>
-      </div>
-
-      {/* Neon grid overlay */}
-      <div className="absolute inset-0 grid-pattern opacity-20"></div>
-
-      {/* Floating glow orbs */}
-      <div className="absolute top-1/4 left-1/3 w-32 h-32 bg-cyan-500 rounded-full blur-3xl opacity-50 animate-pulse-slow"></div>
-      <div className="absolute bottom-1/3 right-1/4 w-40 h-40 bg-purple-500 rounded-full blur-3xl opacity-50 animate-pulse-slow delay-1000"></div>
-      <div className="absolute top-2/3 left-1/2 w-28 h-28 bg-pink-500 rounded-full blur-3xl opacity-40 animate-pulse-slow delay-2000"></div>
+const FuturisticBackground: React.FC = () => (
+  <div className="absolute inset-0 -z-10">
+    {/* Animated gradient beams */}
+    <div className="absolute inset-0">
+      <div className="absolute w-[200%] h-[200%] bg-gradient-to-r from-cyan-500/30 via-purple-500/20 to-pink-500/30 animate-spin-slow"></div>
     </div>
-  );
-};
+    {/* Neon grid overlay */}
+    <div className="absolute inset-0 grid-pattern opacity-20"></div>
+    {/* Floating glow orbs */}
+    <div className="absolute top-1/4 left-1/3 w-32 h-32 bg-cyan-500 rounded-full blur-3xl opacity-50 animate-pulse-slow"></div>
+    <div className="absolute bottom-1/3 right-1/4 w-40 h-40 bg-purple-500 rounded-full blur-3xl opacity-50 animate-pulse-slow delay-1000"></div>
+    <div className="absolute top-2/3 left-1/2 w-28 h-28 bg-pink-500 rounded-full blur-3xl opacity-40 animate-pulse-slow delay-2000"></div>
+  </div>
+);
 
 const MainLayout: React.FC = () => {
   const location = useLocation();
@@ -35,9 +31,18 @@ const MainLayout: React.FC = () => {
     { to: "/resume", label: "Resume" },
   ];
 
+  // Pre-create motion values for 3D hover effect
+  const navHoverValues = navLinks.map(() => {
+    const x = useMotionValue(0);
+    const y = useMotionValue(0);
+    const rotateX = useTransform(y, [-20, 20], [5, -5]);
+    const rotateY = useTransform(x, [-20, 20], [-5, 5]);
+    return { x, y, rotateX, rotateY };
+  });
+
   return (
     <div className="relative flex flex-col min-h-screen bg-[#0a0a0f] text-gray-100 overflow-hidden">
-      {/* Global Background */}
+      {/* Background */}
       <FuturisticBackground />
 
       {/* Navbar */}
@@ -52,13 +57,24 @@ const MainLayout: React.FC = () => {
             {navLinks.map((link, idx) => (
               <motion.div
                 key={link.to}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 * idx, duration: 0.4 }}
+                style={{
+                  rotateX: navHoverValues[idx].rotateX,
+                  rotateY: navHoverValues[idx].rotateY,
+                }}
+                onMouseMove={(e) => {
+                  const rect = (e.currentTarget as HTMLDivElement).getBoundingClientRect();
+                  navHoverValues[idx].x.set(e.clientX - rect.left - rect.width / 2);
+                  navHoverValues[idx].y.set(e.clientY - rect.top - rect.height / 2);
+                }}
+                onMouseLeave={() => {
+                  navHoverValues[idx].x.set(0);
+                  navHoverValues[idx].y.set(0);
+                }}
+                className="cursor-pointer"
               >
                 <Link
                   to={link.to}
-                  className={`transition-colors duration-300 ${location.pathname === link.to
+                  className={`px-4 py-2 rounded-md transition-colors ${location.pathname === link.to
                       ? "text-indigo-400 font-semibold"
                       : "text-gray-300 hover:text-indigo-400"
                     }`}

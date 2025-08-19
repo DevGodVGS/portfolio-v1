@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { motion, useMotionValue, useTransform } from "framer-motion";
 import type { Variants } from "framer-motion";
 
@@ -14,30 +14,13 @@ interface Repo {
 
 const containerVariants: Variants = {
   hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.15, delayChildren: 0.2 },
-  },
+  visible: { opacity: 1, transition: { staggerChildren: 0.15, delayChildren: 0.2 } },
 };
 
 const cardVariants: Variants = {
   hidden: { opacity: 0, y: 40, scale: 0.95 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: { type: "spring" as const, stiffness: 120, damping: 15 },
-  },
-  hover: {
-    scale: 1.05,
-    rotateX: 2,
-    rotateY: 2,
-    boxShadow: "0 20px 40px rgba(139,92,246,0.3)",
-    transition: { duration: 0.3 },
-  },
+  visible: { opacity: 1, y: 0, scale: 1, transition: { type: "spring", stiffness: 120, damping: 15 } },
 };
-
-
 
 const badgeVariants: Variants = {
   hidden: { opacity: 0, y: 5 },
@@ -47,22 +30,28 @@ const badgeVariants: Variants = {
 const Projects: React.FC = () => {
   const [repos, setRepos] = useState<Repo[]>([]);
   const [liveLinks, setLiveLinks] = useState<{ [key: string]: string }>({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const username = "DevGodVGS";
 
   useEffect(() => {
     const fetchRepos = async () => {
       try {
         const res = await fetch(`https://api.github.com/users/${username}/repos?sort=updated`);
+        if (!res.ok) throw new Error(`GitHub API responded with status ${res.status}`);
         const data: Repo[] = await res.json();
 
         const reposWithTopics = await Promise.all(
           data.map(async (repo: any) => {
-            const topicsRes = await fetch(
-              `https://api.github.com/repos/${username}/${repo.name}/topics`,
-              { headers: { Accept: "application/vnd.github.mercy-preview+json" } }
-            );
-            const topicsData = await topicsRes.json();
-            return { ...repo, topics: topicsData.names || [] };
+            try {
+              const topicsRes = await fetch(`https://api.github.com/repos/${username}/${repo.name}/topics`, {
+                headers: { Accept: "application/vnd.github.mercy-preview+json" },
+              });
+              const topicsData = await topicsRes.json();
+              return { ...repo, topics: topicsData.names || [] };
+            } catch {
+              return { ...repo, topics: [] };
+            }
           })
         );
         setRepos(reposWithTopics);
@@ -78,8 +67,11 @@ const Projects: React.FC = () => {
           })
         );
         setLiveLinks(liveLinksMap);
-      } catch (err) {
+      } catch (err: any) {
         console.error(err);
+        setError("Failed to fetch projects. Please try again later.");
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -92,10 +84,26 @@ const Projects: React.FC = () => {
   const useCardHover3D = () => {
     const x = useMotionValue(0);
     const y = useMotionValue(0);
-    const rotateX = useTransform(y, [0, 200], [10, -10]);
-    const rotateY = useTransform(x, [0, 200], [-10, 10]);
+    const rotateX = useTransform(y, [-100, 100], [10, -10]);
+    const rotateY = useTransform(x, [-100, 100], [-10, 10]);
     return { x, y, rotateX, rotateY };
   };
+
+  // Loader or Error fallback
+  if (loading || error) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-gray-900 via-indigo-900 to-black">
+        <motion.h1
+          className="text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-500"
+          animate={{ opacity: [0.2, 1, 0.2], scale: [1, 1.2, 1] }}
+          transition={{ duration: 1.5, repeat: Infinity }}
+        >
+          VGS
+        </motion.h1>
+        {error && <p className="mt-6 text-red-400 text-lg text-center">{error}</p>}
+      </div>
+    );
+  }
 
   return (
     <main className="relative p-6 flex flex-col items-center min-h-screen bg-gradient-to-br from-gray-900 via-indigo-900 to-black overflow-hidden">
@@ -172,7 +180,6 @@ const Projects: React.FC = () => {
                       {repo.language}
                     </motion.span>
                   )}
-
                   {repo.topics?.map((topic, idx) => (
                     <motion.span
                       key={idx}
@@ -188,21 +195,11 @@ const Projects: React.FC = () => {
                 </div>
 
                 <div className="flex justify-between">
-                  <a
-                    href={repo.html_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-400 hover:underline"
-                  >
+                  <a href={repo.html_url} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">
                     GitHub
                   </a>
                   {liveLinks[repo.name] && (
-                    <a
-                      href={liveLinks[repo.name]}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-green-400 hover:underline"
-                    >
+                    <a href={liveLinks[repo.name]} target="_blank" rel="noopener noreferrer" className="text-green-400 hover:underline">
                       Live Demo
                     </a>
                   )}
@@ -213,94 +210,65 @@ const Projects: React.FC = () => {
         })}
       </motion.div>
 
-      {/* Neon Trailing Particles */}
-      <NeonTrails count={25} />
+      {/* Canvas-based Neon Trails */}
+      <NeonTrailsCanvas count={25} />
 
-      <style>
-        {`
+      <style>{`
         @keyframes gradientShift {
           0% { background-position: 0% 50%; }
           50% { background-position: 100% 50%; }
           100% { background-position: 0% 50%; }
         }
         .animate-gradient-x { background-size: 200% 200%; animation: gradientShift 5s ease infinite; }
-        `}
-      </style>
+      `}</style>
     </main>
   );
 };
 
-// Reuse the same NeonTrails component as Contact
-const NeonTrails: React.FC<{ count: number }> = ({ count }) => {
-  const [particles, setParticles] = useState<{ x: number; y: number; dx: number; dy: number; hue: number; trail: { x: number; y: number }[] }[]>([]);
+// Canvas-based Neon Trails
+const NeonTrailsCanvas: React.FC<{ count: number }> = ({ count }) => {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const particlesRef = useRef<{ x: number; y: number; dx: number; dy: number; hue: number }[]>([]);
 
   useEffect(() => {
-    const arr = Array.from({ length: count }).map(() => ({
-      x: Math.random() * window.innerWidth,
-      y: Math.random() * window.innerHeight,
-      dx: (Math.random() - 0.5) * 2,
-      dy: (Math.random() - 0.5) * 2,
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
+    window.addEventListener("resize", resize);
+    resize();
+
+    particlesRef.current = Array.from({ length: count }).map(() => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      dx: (Math.random() - 0.5) * 1.5,
+      dy: (Math.random() - 0.5) * 1.5,
       hue: Math.random() * 360,
-      trail: [],
     }));
-    setParticles(arr);
+
+    const animate = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particlesRef.current.forEach(p => {
+        p.x += p.dx; p.y += p.dy;
+        if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
+        if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
+        ctx.fillStyle = `hsl(${p.hue},100%,70%)`;
+        ctx.shadowColor = `hsl(${p.hue},100%,70%)`;
+        ctx.shadowBlur = 8;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+        ctx.fill();
+      });
+      requestAnimationFrame(animate);
+    };
+    animate();
+
+    return () => window.removeEventListener("resize", resize);
   }, [count]);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setParticles((prev) =>
-        prev.map((p) => {
-          const newX = p.x + p.dx;
-          const newY = p.y + p.dy;
-          const newTrail = [...p.trail, { x: p.x, y: p.y }].slice(-5);
-          return {
-            ...p,
-            x: newX < 0 || newX > window.innerWidth ? p.x : newX,
-            y: newY < 0 || newY > window.innerHeight ? p.y : newY,
-            dx: newX < 0 || newX > window.innerWidth ? -p.dx : p.dx,
-            dy: newY < 0 || newY > window.innerHeight ? -p.dy : p.dy,
-            trail: newTrail,
-          };
-        })
-      );
-    }, 16);
-    return () => clearInterval(interval);
-  }, []);
-
-  return (
-    <>
-      {particles.map((p, idx) => (
-        <React.Fragment key={idx}>
-          {p.trail.map((t, tIdx) => (
-            <div
-              key={tIdx}
-              className="absolute rounded-full pointer-events-none"
-              style={{
-                left: t.x,
-                top: t.y,
-                width: 6 - tIdx,
-                height: 6 - tIdx,
-                background: `hsl(${p.hue}, 100%, ${70 - tIdx * 10}%)`,
-                opacity: 0.7 - tIdx * 0.1,
-                filter: "blur(4px)",
-              }}
-            />
-          ))}
-          <div
-            className="absolute rounded-full pointer-events-none"
-            style={{
-              left: p.x,
-              top: p.y,
-              width: 6,
-              height: 6,
-              background: `hsl(${p.hue}, 100%, 70%)`,
-              filter: "blur(4px)",
-            }}
-          />
-        </React.Fragment>
-      ))}
-    </>
-  );
+  return <canvas ref={canvasRef} className="absolute inset-0 -z-10" />;
 };
 
 export default Projects;
