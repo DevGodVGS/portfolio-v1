@@ -38,7 +38,7 @@ class ErrorBoundary extends Component<Props, State> {
                         animate={{ opacity: [0.2, 1, 0.2], scale: [1, 1.2, 1] }}
                         transition={{ duration: 1.5, repeat: Infinity }}
                     >
-                        VGS
+                        Portfolio-VGS
                     </motion.h1>
 
                     <p className="text-red-400 text-lg mb-4">
