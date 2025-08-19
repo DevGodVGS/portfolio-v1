@@ -27,105 +27,6 @@ const badgeVariants: Variants = {
   visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300 } },
 };
 
-// ------------------ Card Component ------------------
-const ProjectCard: React.FC<{ repo: Repo; liveLink?: string; username: string }> = ({ repo, liveLink, username }) => {
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-  const rotateX = useTransform(y, [-100, 100], [10, -10]);
-  const rotateY = useTransform(x, [-100, 100], [-10, 10]);
-
-  const getRepoScreenshot = (repo: Repo) =>
-    `https://raw.githubusercontent.com/${username}/${repo.name}/${repo.default_branch}/screenshot.png`;
-
-  return (
-    <motion.div
-      className="bg-gray-900 rounded-2xl overflow-hidden border border-indigo-700 shadow-xl cursor-pointer relative"
-      variants={cardVariants}
-      style={{ rotateX, rotateY }}
-      onMouseMove={(e) => {
-        const rect = e.currentTarget.getBoundingClientRect();
-        x.set(e.clientX - rect.left - rect.width / 2);
-        y.set(e.clientY - rect.top - rect.height / 2);
-      }}
-      onMouseLeave={() => {
-        x.set(0);
-        y.set(0);
-      }}
-    >
-      <motion.img
-        src={getRepoScreenshot(repo)}
-        alt={repo.name}
-        onError={(e) =>
-        ((e.target as HTMLImageElement).src =
-          "https://via.placeholder.com/400x250?text=No+Screenshot")
-        }
-        className="w-full h-48 object-cover border-b border-indigo-700"
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.6 }}
-      />
-
-      <div className="p-4">
-        <motion.h2
-          className="text-xl font-semibold mb-2 text-white"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-        >
-          {repo.name}
-        </motion.h2>
-
-        <motion.p
-          className="text-gray-300 mb-3"
-          initial={{ opacity: 0, y: 5 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
-        >
-          {repo.description || "No description available."}
-        </motion.p>
-
-        <div className="relative flex flex-wrap gap-2 mb-4">
-          {repo.language && (
-            <motion.span
-              variants={badgeVariants}
-              initial="hidden"
-              animate="visible"
-              whileHover={{ scale: 1.2, textShadow: "0 0 8px #8B5CF6" }}
-              className="text-sm bg-gray-800 text-white px-2 py-1 rounded-lg"
-            >
-              {repo.language}
-            </motion.span>
-          )}
-          {repo.topics?.map((topic, idx) => (
-            <motion.span
-              key={idx}
-              variants={badgeVariants}
-              initial="hidden"
-              animate="visible"
-              whileHover={{ scale: 1.2, rotate: [0, 10, -10, 0], textShadow: "0 0 8px #EC4899" }}
-              className="text-sm bg-gray-800 text-white px-2 py-1 rounded-lg"
-            >
-              {topic}
-            </motion.span>
-          ))}
-        </div>
-
-        <div className="flex justify-between">
-          <a href={repo.html_url} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">
-            GitHub
-          </a>
-          {liveLink && (
-            <a href={liveLink} target="_blank" rel="noopener noreferrer" className="text-green-400 hover:underline">
-              Live Demo
-            </a>
-          )}
-        </div>
-      </div>
-    </motion.div>
-  );
-};
-
-// ------------------ Main Projects Component ------------------
 const Projects: React.FC = () => {
   const [repos, setRepos] = useState<Repo[]>([]);
   const [liveLinks, setLiveLinks] = useState<{ [key: string]: string }>({});
@@ -177,6 +78,18 @@ const Projects: React.FC = () => {
     fetchRepos();
   }, []);
 
+  const getRepoScreenshot = (repo: Repo) =>
+    `https://raw.githubusercontent.com/${username}/${repo.name}/${repo.default_branch}/screenshot.png`;
+
+  const useCardHover3D = () => {
+    const x = useMotionValue(0);
+    const y = useMotionValue(0);
+    const rotateX = useTransform(y, [-100, 100], [10, -10]);
+    const rotateY = useTransform(x, [-100, 100], [-10, 10]);
+    return { x, y, rotateX, rotateY };
+  };
+
+  // Loader or Error fallback
   if (loading || error) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-gray-900 via-indigo-900 to-black">
@@ -205,16 +118,99 @@ const Projects: React.FC = () => {
         initial="hidden"
         animate="visible"
       >
-        {repos.map((repo) => (
-          <ProjectCard
-            key={repo.id}
-            repo={repo}
-            liveLink={liveLinks[repo.name]}
-            username={username}
-          />
-        ))}
+        {repos.map((repo) => {
+          const { x, y, rotateX, rotateY } = useCardHover3D();
+          return (
+            <motion.div
+              key={repo.id}
+              className="bg-gray-900 rounded-2xl overflow-hidden border border-indigo-700 shadow-xl cursor-pointer relative"
+              variants={cardVariants}
+              style={{ rotateX, rotateY }}
+              onMouseMove={(e) => {
+                const rect = e.currentTarget.getBoundingClientRect();
+                x.set(e.clientX - rect.left - rect.width / 2);
+                y.set(e.clientY - rect.top - rect.height / 2);
+              }}
+              onMouseLeave={() => {
+                x.set(0);
+                y.set(0);
+              }}
+            >
+              <motion.img
+                src={getRepoScreenshot(repo)}
+                alt={repo.name}
+                onError={(e) =>
+                ((e.target as HTMLImageElement).src =
+                  "https://via.placeholder.com/400x250?text=No+Screenshot")
+                }
+                className="w-full h-48 object-cover border-b border-indigo-700"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.6 }}
+              />
+
+              <div className="p-4">
+                <motion.h2
+                  className="text-xl font-semibold mb-2 text-white"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                >
+                  {repo.name}
+                </motion.h2>
+
+                <motion.p
+                  className="text-gray-300 mb-3"
+                  initial={{ opacity: 0, y: 5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.15 }}
+                >
+                  {repo.description || "No description available."}
+                </motion.p>
+
+                <div className="relative flex flex-wrap gap-2 mb-4">
+                  {repo.language && (
+                    <motion.span
+                      variants={badgeVariants}
+                      initial="hidden"
+                      animate="visible"
+                      whileHover={{ scale: 1.2, textShadow: "0 0 8px #8B5CF6" }}
+                      className="text-sm bg-gray-800 text-white px-2 py-1 rounded-lg"
+                    >
+                      {repo.language}
+                    </motion.span>
+                  )}
+                  {repo.topics?.map((topic, idx) => (
+                    <motion.span
+                      key={idx}
+                      variants={badgeVariants}
+                      initial="hidden"
+                      animate="visible"
+                      whileHover={{ scale: 1.2, rotate: [0, 10, -10, 0], textShadow: "0 0 8px #EC4899" }}
+                      className="text-sm bg-gray-800 text-white px-2 py-1 rounded-lg"
+                    >
+                      {topic}
+                    </motion.span>
+                  ))}
+                </div>
+
+                <div className="flex justify-between">
+                  <a href={repo.html_url} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">
+                    GitHub
+                  </a>
+                  {liveLinks[repo.name] && (
+                    <a href={liveLinks[repo.name]} target="_blank" rel="noopener noreferrer" className="text-green-400 hover:underline">
+                      Live Demo
+                    </a>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          );
+        })}
       </motion.div>
 
+      {/* Canvas-based Neon Trails */}
       <NeonTrailsCanvas count={25} />
 
       <style>{`
@@ -229,7 +225,7 @@ const Projects: React.FC = () => {
   );
 };
 
-// ------------------ Canvas Neon Trails ------------------
+// Canvas-based Neon Trails
 const NeonTrailsCanvas: React.FC<{ count: number }> = ({ count }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const particlesRef = useRef<{ x: number; y: number; dx: number; dy: number; hue: number }[]>([]);
