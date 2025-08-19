@@ -3,6 +3,26 @@ import { Outlet, Link, useLocation } from "react-router-dom";
 import { FaBars, FaTimes } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 
+// Futuristic Background
+const FuturisticBackground: React.FC = () => {
+  return (
+    <div className="absolute inset-0 -z-10">
+      {/* Animated gradient beams */}
+      <div className="absolute inset-0">
+        <div className="absolute w-[200%] h-[200%] bg-gradient-to-r from-cyan-500/30 via-purple-500/20 to-pink-500/30 animate-spin-slow"></div>
+      </div>
+
+      {/* Neon grid overlay */}
+      <div className="absolute inset-0 grid-pattern opacity-20"></div>
+
+      {/* Floating glow orbs */}
+      <div className="absolute top-1/4 left-1/3 w-32 h-32 bg-cyan-500 rounded-full blur-3xl opacity-50 animate-pulse-slow"></div>
+      <div className="absolute bottom-1/3 right-1/4 w-40 h-40 bg-purple-500 rounded-full blur-3xl opacity-50 animate-pulse-slow delay-1000"></div>
+      <div className="absolute top-2/3 left-1/2 w-28 h-28 bg-pink-500 rounded-full blur-3xl opacity-40 animate-pulse-slow delay-2000"></div>
+    </div>
+  );
+};
+
 const MainLayout: React.FC = () => {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -10,20 +30,24 @@ const MainLayout: React.FC = () => {
   const navLinks = [
     { to: "/", label: "Home" },
     { to: "/about", label: "About" },
-    { to: "/projects", label: "Projects" },
     { to: "/contact", label: "Contact" },
+    { to: "/projects", label: "Projects" },
+    { to: "/resume", label: "Resume" },
   ];
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-900 text-gray-100">
+    <div className="relative flex flex-col min-h-screen bg-[#0a0a0f] text-gray-100 overflow-hidden">
+      {/* Global Background */}
+      <FuturisticBackground />
+
       {/* Navbar */}
-      <header className="sticky top-0 z-50 bg-gray-900 shadow-md">
+      <header className="sticky top-0 z-50 bg-gray-900/80 backdrop-blur-md shadow-md">
         <div className="max-w-6xl mx-auto flex justify-between items-center p-4">
           <h1 className="text-2xl font-extrabold tracking-wide text-white">
             My <span className="text-indigo-400">Portfolio</span>
           </h1>
 
-          {/* Desktop Nav with fade-in animation */}
+          {/* Desktop Nav */}
           <nav className="hidden md:flex gap-6 font-medium">
             {navLinks.map((link, idx) => (
               <motion.div
@@ -45,7 +69,7 @@ const MainLayout: React.FC = () => {
             ))}
           </nav>
 
-          {/* Mobile menu button */}
+          {/* Mobile Menu Button */}
           <button
             className="md:hidden text-gray-300 hover:text-white text-2xl"
             onClick={() => setMobileOpen(!mobileOpen)}
@@ -54,7 +78,7 @@ const MainLayout: React.FC = () => {
           </button>
         </div>
 
-        {/* Mobile Nav with animation */}
+        {/* Mobile Nav */}
         <AnimatePresence>
           {mobileOpen && (
             <motion.nav
@@ -83,12 +107,12 @@ const MainLayout: React.FC = () => {
       </header>
 
       {/* Main Content */}
-      <main className="flex-grow max-w-6xl mx-auto w-full px-4 py-8">
+      <main className="flex-grow w-full relative z-10">
         <Outlet />
       </main>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-gray-300 text-center p-4">
+      <footer className="bg-gray-900/80 backdrop-blur-md text-gray-300 text-center p-4 relative z-10">
         <p className="text-sm">
           © {new Date().getFullYear()} Vishwa Gaurav Shukla. All rights reserved.
         </p>
