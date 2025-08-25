@@ -49,14 +49,14 @@ const useCardHover3D = () => {
 };
 
 // ✅ Child component so hooks are not inside map
-const ProjectCard: React.FC<{ repo: Repo; username: string }> = ({ repo, username }) => {
+const ProjectCard: React.FC<{ repo: Repo; username: string }> = ({ repo }) => {
     const { x, y, rotateX, rotateY } = useCardHover3D();
-    const fallbackImages: Record<string, string> = {
-        "portfolio": "/images/portfolio.png",
-        "game-project": "/images/game.png",
-    };
-    const getRepoScreenshot = (repo: Repo) =>
-        `https://raw.githubusercontent.com/${username}/${repo.name}/${repo.default_branch}/screenshot.png`;
+    // const fallbackImages: Record<string, string> = {
+    //     "portfolio": "/images/portfolio.png",
+    //     "game-project": "/images/game.png",
+    // };
+    // const getRepoScreenshot = (repo: Repo) =>
+    //     `https://raw.githubusercontent.com/${username}/${repo.name}/${repo.default_branch}/screenshot.png`;
 
     return (
         <motion.div
