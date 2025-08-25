@@ -128,9 +128,9 @@ const Home: React.FC = () => {
                 </motion.div>
 
                 {/* Contact Info */}
-                <motion.div variants={fadeUp} className="mt-4 text-gray-400 text-sm">
+                {/* <motion.div variants={fadeUp} className="mt-4 text-gray-400 text-sm">
                     <p>+91 8887924395 | vgsofficial0707@gmail.com</p>
-                </motion.div>
+                </motion.div> */}
             </motion.div>
 
             {/* Neon Particle Trails */}

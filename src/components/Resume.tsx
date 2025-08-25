@@ -3,7 +3,7 @@ import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion"
 import { FaReact, FaNodeJs } from "react-icons/fa";
 import { SiTypescript, SiRedux, SiTailwindcss } from "react-icons/si";
 
-// Neon particles
+// -------------------- Neon Particles --------------------
 type Particle = { x: number; y: number; dx: number; dy: number; hue: number };
 
 const NeonTrails: React.FC<{ count: number }> = ({ count }) => {
@@ -33,7 +33,7 @@ const NeonTrails: React.FC<{ count: number }> = ({ count }) => {
                 if (newY < 0 || newY > window.innerHeight) p.dy *= -1;
                 return { ...p, x: newX, y: newY };
             });
-            setParticles([...particlesRef.current]); // only update once per frame
+            setParticles([...particlesRef.current]);
             animationFrame = requestAnimationFrame(animate);
         };
 
@@ -61,7 +61,7 @@ const NeonTrails: React.FC<{ count: number }> = ({ count }) => {
     );
 };
 
-// Futuristic Background
+// -------------------- Futuristic Background --------------------
 const FuturisticBackground: React.FC = () => (
     <div className="absolute inset-0 -z-10">
         <div className="absolute inset-0 w-[200%] h-[200%] bg-gradient-to-r from-cyan-500/30 via-purple-500/20 to-pink-500/30 animate-spin-slow" />
@@ -71,7 +71,7 @@ const FuturisticBackground: React.FC = () => (
     </div>
 );
 
-// Optimized Progress Bar
+// -------------------- Scroll Progress Bar --------------------
 const FuturisticProgressBar: React.FC = () => {
     const { scrollYProgress } = useScroll();
     const width = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
@@ -79,14 +79,52 @@ const FuturisticProgressBar: React.FC = () => {
 
     return (
         <motion.div className="fixed top-0 left-0 w-full z-50" style={{ height }}>
-            <motion.div className="h-full rounded-r-full overflow-hidden shadow-[0_0_15px_rgba(0,255,255,0.8)]" style={{ width }}>
+            <motion.div
+                className="h-full rounded-r-full overflow-hidden shadow-[0_0_15px_rgba(0,255,255,0.8)]"
+                style={{ width }}
+            >
                 <div className="w-full h-full bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 animate-shimmer" />
             </motion.div>
         </motion.div>
     );
 };
 
-// Resume Modal & Skills
+// -------------------- Modal Component --------------------
+interface ModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    children: React.ReactNode;
+}
+
+const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => (
+    <AnimatePresence>
+        {isOpen && (
+            <motion.div
+                className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+            >
+                <motion.div
+                    className="bg-[#12121a] w-full max-w-5xl rounded-2xl shadow-2xl relative overflow-hidden"
+                    initial={{ scale: 0.9, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0.9, opacity: 0 }}
+                >
+                    <button
+                        onClick={onClose}
+                        className="text-red-400 hover:text-red-500 absolute top-4 right-4 z-10"
+                    >
+                        ✕
+                    </button>
+                    {children}
+                </motion.div>
+            </motion.div>
+        )}
+    </AnimatePresence>
+);
+
+// -------------------- Resume Component --------------------
 const Resume: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -115,12 +153,16 @@ const Resume: React.FC = () => {
             <motion.button
                 className="px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white text-lg font-semibold shadow-2xl hover:scale-105 transition relative z-10"
                 onClick={() => setIsModalOpen(true)}
-                whileHover={{ scale: 1.08, rotate: 5, boxShadow: "0 0 20px #8B5CF6, 0 0 40px #EC4899" }}
+                whileHover={{
+                    scale: 1.08,
+                    rotate: 5,
+                    boxShadow: "0 0 20px #8B5CF6, 0 0 40px #EC4899",
+                }}
             >
                 View Resume
             </motion.button>
 
-            {/* Floating Skill Icons - CSS based animation */}
+            {/* Floating Skill Icons */}
             {skills.map((skill, i) => (
                 <div
                     key={i}
@@ -134,36 +176,33 @@ const Resume: React.FC = () => {
             ))}
 
             {/* Resume Modal */}
-            <AnimatePresence>
-                {isModalOpen && (
-                    <motion.div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                    >
-                        <motion.div className="bg-[#12121a] text-white max-w-5xl w-full rounded-2xl shadow-2xl relative overflow-hidden"
-                            initial={{ scale: 0.9, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            exit={{ scale: 0.9, opacity: 0 }}
-                        >
-                            <FuturisticProgressBar />
-                            <div className="p-8 overflow-y-auto max-h-screen">
-                                <h2 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-500 animate-gradient-x">Vishwa Gaurav Shukla</h2>
-                                <button onClick={() => setIsModalOpen(false)} className="text-red-400 hover:text-red-500 absolute top-4 right-4">✕</button>
-                                <p className="text-cyan-400">Frontend Developer</p>
-                            </div>
-                        </motion.div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+                <div className="p-6 flex justify-center items-center h-[80vh]">
+                    <iframe
+                        src="/Vishwa_Gaurav_Shukla_Resume.pdf"
+                        title="Resume"
+                        width="100%"
+                        height="100%"
+                        className="shadow-lg rounded-xl"
+                    />
+                </div>
+            </Modal>
+
+            <FuturisticProgressBar />
 
             <style>{`
-                @keyframes gradientShift { 0% { background-position:0% 50%; } 50% { background-position:100% 50%; } 100% { background-position:0% 50%; }
-                }
-                .animate-gradient-x { background-size: 200% 200%; animation: gradientShift 5s ease infinite; }
-                @keyframes float { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-15px) rotate(15deg); } }
-                .float-skill { animation: float 6s ease-in-out infinite; will-change: transform; }
-            `}</style>
+        @keyframes gradientShift {
+          0% { background-position:0% 50%; }
+          50% { background-position:100% 50%; }
+          100% { background-position:0% 50%; }
+        }
+        .animate-gradient-x { background-size: 200% 200%; animation: gradientShift 5s ease infinite; }
+        @keyframes float {
+          0%, 100% { transform: translateY(0) rotate(0deg); }
+          50% { transform: translateY(-15px) rotate(15deg); }
+        }
+        .float-skill { animation: float 6s ease-in-out infinite; will-change: transform; }
+      `}</style>
         </section>
     );
 };

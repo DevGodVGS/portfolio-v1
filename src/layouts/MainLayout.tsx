@@ -49,7 +49,7 @@ const MainLayout: React.FC = () => {
       <header className="sticky top-0 z-50 bg-gray-900/80 backdrop-blur-md shadow-md">
         <div className="max-w-6xl mx-auto flex justify-between items-center p-4">
           <h1 className="text-2xl font-extrabold tracking-wide text-white">
-            My <span className="text-indigo-400">Portfolio</span>
+            DevGod <span className="text-indigo-400">VGS</span>
           </h1>
 
           {/* Desktop Nav */}
