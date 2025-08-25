@@ -159,7 +159,7 @@ const Resume: React.FC = () => {
                     boxShadow: "0 0 20px #8B5CF6, 0 0 40px #EC4899",
                 }}
             >
-                View Resume
+                Unleash My Potential
             </motion.button>
 
             {/* Floating Skill Icons */}
