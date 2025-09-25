@@ -76,8 +76,8 @@ const MainLayout: React.FC = () => {
                 <Link
                   to={link.to}
                   className={`px-4 py-2 rounded-md transition-colors ${location.pathname === link.to
-                      ? "text-indigo-400 font-semibold"
-                      : "text-gray-300 hover:text-indigo-400"
+                    ? "text-indigo-400 font-semibold"
+                    : "text-gray-300 hover:text-indigo-400"
                     }`}
                 >
                   {link.label}
@@ -111,8 +111,8 @@ const MainLayout: React.FC = () => {
                   to={link.to}
                   onClick={() => setMobileOpen(false)}
                   className={`transition-colors duration-300 px-4 py-3 ${location.pathname === link.to
-                      ? "text-indigo-400 font-semibold bg-gray-700"
-                      : "text-gray-300 hover:text-indigo-400 hover:bg-gray-700"
+                    ? "text-indigo-400 font-semibold bg-gray-700"
+                    : "text-gray-300 hover:text-indigo-400 hover:bg-gray-700"
                     } rounded-md mx-2 my-1`}
                 >
                   {link.label}
