@@ -40,6 +40,7 @@ const MainLayout: React.FC = () => {
     return { x, y, rotateX, rotateY };
   });
   console.log('temp 1');
+  console.log('temp 2');
   return (
     <div className="relative flex flex-col min-h-screen bg-[#0a0a0f] text-gray-100 overflow-hidden">
       {/* Background */}
